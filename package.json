@@ -1,0 +1,22 @@
+{
+  "name": "bh-game-server",
+  "version": "1.0.0",
+  "description": "Game server for bounty hunter",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/com2027/Game.git"
+  },
+  "keywords": [
+    "game"
+  ],
+  "author": "Kieran Rigby",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/com2027/Game/issues"
+  },
+  "homepage": "https://github.com/com2027/Game#readme"
+}
