@@ -1,14 +1,18 @@
 const PORT = process.env.PORT || 3000;
-const io = require("socket.io");
-io.configure(function () {
-  io.set("transports", ["xhr-polling"]);
-  io.set("polling duration", 10);
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/index.html');
 });
-const server = io.listen(PORT);
 
-console.log("Listening on port " + PORT);
+io.on('connection', function(socket){
+  console.log('a user connected');
 
-server.on("connection", function(socket) {
-  console.log("user connected");
-  socket.emit("welcome", "welcome man");
+  socket.emit('welcome','welcome to the server');
+});
+
+http.listen(PORT, function(){
+  console.log('listening on *:3000');
 });
