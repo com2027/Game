@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/com2027/Game/issues"
   },
-  "homepage": "https://github.com/com2027/Game#readme"
+  "homepage": "https://github.com/com2027/Game#readme",
+  "dependencies": {
+    "socket.io": "^2.2.0"
+  }
 }
