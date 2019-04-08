@@ -8,10 +8,13 @@
 const PORT = process.env.PORT || 3000;
 
 //include express, http server and socket.io
-var express = require('express');
+const express = require('express');
 const app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+
+//include middleware
+const checkAuth = require('./middleware/check-auth');
 
 // INITAL SERVER SETUP
 /////////////////////////////////////////////////////////////////////////
@@ -25,18 +28,22 @@ app.use(express.static('public'));
 
 //Start listening on the port and serving web pages.
 http.listen(PORT, function(){
-  console.log('listening on *:' + PORT);
+  console.log('Game server listening on *:' + PORT);
 });
 
 /////////////////////////////////////////////////////////////////////////
 
 
+//set up socket io to use some middleware so only authenticated users can connect.
+io.use(checkAuth);
+
 
 // SOCKET IO GAME STUFF STARTS HERE
 /////////////////////////////////////////////////////////////////////////
 io.on('connection', function(socket){
-  console.log('a user connected');
-
+  console.log(socket.user.firstName + ' ' + socket.user.lastName + ' connected');
+  console.log("here");
+  console.log(socket.user);
   socket.emit('welcome','welcome to the server');
 });
 /////////////////////////////////////////////////////////////////////////
