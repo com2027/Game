@@ -48,12 +48,13 @@ io.on('connection', function(socket){
   console.log(socket.player.user.firstName + ' ' + socket.player.user.lastName + ' connected');
 
   socket.on('createGame', (players) => {
-    var game = new Game(players);
-    console.log(socket.player.user.firstName + " " + socket.player.user.lastName + " is creating game: " + game.id )
-    game.create(io, socket, players)
-    // socket.join(game.id, ()=>{
-    //
-    // });
+    try{
+      var game = new Game(players);
+      console.log(socket.player.user.firstName + " " + socket.player.user.lastName + " is trying to create game: " + game.id )
+      game.create(io, socket, players)
+    }catch(err){
+      console.log(err.message);
+    }
   });
 
 
