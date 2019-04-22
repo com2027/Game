@@ -16,10 +16,19 @@ module.exports = (socket,next) => {
       .then(() => {
         socket.player = player;
         next();
+      })
+      .catch((err) => {
+        if(err.name == "UserNotFoundError"){
+          console.log(socket.id + " is linked to a user which is not found");
+          next(new Error('User not found'));
+        }
       });
 
   }catch(err){
-    console.log(socket.id + " is unauthorized");
-    next(new Error('Authentication error'));
+    if(err.name == "JsonWebTokenError"){
+      console.log(socket.id + " is unauthorized");
+      next(new Error('Authentication error'));
+    }
+
   }
 };

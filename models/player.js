@@ -13,8 +13,9 @@ class Player{
         'bearer': this.token
       },
       'json':true
-    }).then((user) => this.user = user )
-      .catch((err) => Error('User not found') );
+    })
+    .then((user) => this.user = user )
+    .catch(() => {throw {name:"UserNotFoundError", message:"User not found"}})
   }
 
 

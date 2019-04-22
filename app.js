@@ -46,6 +46,7 @@ io.use(checkAuth);
 /////////////////////////////////////////////////////////////////////////
 io.on('connection', function(socket){
   console.log(socket.player.user.firstName + ' ' + socket.player.user.lastName + ' connected');
+  console.log(Object.keys(io.sockets.connected));
 
   socket.on('createGame', (players) => {
     try{
@@ -53,6 +54,7 @@ io.on('connection', function(socket){
       console.log(socket.player.user.firstName + " " + socket.player.user.lastName + " is trying to create game: " + game.id )
       game.create(io, socket, players)
     }catch(err){
+      socket.emit('gameNotCreated', {message: err.message});
       console.log(err.message);
     }
   });
