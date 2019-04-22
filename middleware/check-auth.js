@@ -14,6 +14,12 @@ module.exports = (socket,next) => {
     let player = new Player(token);
     player.getUser()
       .then(() => {
+        let sockets = Object.values(socket.server.sockets.connected);
+        sockets.forEach((connected) => {
+          if(player.user.id == connected.player.user.id){
+            throw { name: "UserAlreadyConnectedError", message: player.user.firstName + ' ' + player.user.lastName + ' already connected'};
+          }
+        });
         socket.player = player;
         next();
       })
@@ -22,6 +28,10 @@ module.exports = (socket,next) => {
           console.log(socket.id + " is linked to a user which is not found");
           next(new Error('User not found'));
         }
+        if(err.name == "UserAlreadyConnectedError"){
+          console.log(err.message);
+          next(new Error(err.message));
+        }
       });
 
   }catch(err){
@@ -29,6 +39,5 @@ module.exports = (socket,next) => {
       console.log(socket.id + " is unauthorized");
       next(new Error('Authentication error'));
     }
-
   }
 };

@@ -46,7 +46,7 @@ io.use(checkAuth);
 /////////////////////////////////////////////////////////////////////////
 io.on('connection', function(socket){
   console.log(socket.player.user.firstName + ' ' + socket.player.user.lastName + ' connected');
-  console.log(Object.keys(io.sockets.connected));
+  // console.log(Object.keys(io.sockets.connected));
 
   socket.on('createGame', (players) => {
     try{
