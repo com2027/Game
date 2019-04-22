@@ -54,6 +54,7 @@ io.on('connection', function(socket){
     let players = data.players;
     let photo = data.photo;
     console.log(photo);
+    console.log(players);
     //try to make the game
     try{
       var game = new Game(players);
