@@ -44,19 +44,30 @@ io.use(checkAuth);
 
 // SOCKET IO GAME STUFF STARTS HERE
 /////////////////////////////////////////////////////////////////////////
+//when the user is connected and authenticated
 io.on('connection', function(socket){
+  //log the user to the server console
   console.log(socket.player.user.firstName + ' ' + socket.player.user.lastName + ' connected');
-  // console.log(Object.keys(io.sockets.connected));
 
+  //when a user tries to create a game
   socket.on('createGame', (players) => {
+    //try to make the game
     try{
       var game = new Game(players);
       console.log(socket.player.user.firstName + " " + socket.player.user.lastName + " is trying to create game: " + game.id )
-      game.create(io, socket, players)
+      game.create(socket, players);
+      socket.player.game = game;
     }catch(err){
+      //if the game cannot be created then log the error to the user and console
       socket.emit('gameNotCreated', {message: err.message});
       console.log(err.message);
     }
+  });
+
+  socket.on('leaveGame', () => {
+    socket.player.game.leave(socket);
+    socket.emit('gameLeft', {message:"Left game " + socket.player.game.id});
+    delete socket.player.game;
   });
 
 

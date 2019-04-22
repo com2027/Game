@@ -20,6 +20,10 @@ class Game{
       throw new Error(socket.player.user.firstName + " " + socket.player.user.lastName + " is already in a game: " + Object.keys(socket.rooms)[1]);
     }
   }
+
+  leave(socket){
+    socket.leave(this.id);
+  }
 }
 
 module.exports = Game;
