@@ -16,6 +16,10 @@ const io = require('socket.io')(http);
 //include middleware
 const checkAuth = require('./middleware/check-auth');
 
+//include models
+const Player = require('./models/player');
+const Game = require('./models/game');
+
 // INITAL SERVER SETUP
 /////////////////////////////////////////////////////////////////////////
 //On the root route, serve the index page which is just a HTML page containing the logo
@@ -41,9 +45,24 @@ io.use(checkAuth);
 // SOCKET IO GAME STUFF STARTS HERE
 /////////////////////////////////////////////////////////////////////////
 io.on('connection', function(socket){
-  console.log(socket.user.firstName + ' ' + socket.user.lastName + ' connected');
-  console.log("here");
-  console.log(socket.user);
-  socket.emit('welcome','welcome to the server');
+  console.log(socket.player.user.firstName + ' ' + socket.player.user.lastName + ' connected');
+
+  socket.on('createGame', (players) => {
+    var game = new Game(players);
+    console.log(socket.player.user.firstName + " " + socket.player.user.lastName + " is creating game: " + game.id )
+    game.create(io, socket, players)
+    // socket.join(game.id, ()=>{
+    //
+    // });
+  });
+
+
+
+
+
+
+  socket.on('disconnect', function(){
+    console.log(socket.player.user.firstName + ' ' + socket.player.user.lastName + ' disconnected')
+  });
 });
 /////////////////////////////////////////////////////////////////////////

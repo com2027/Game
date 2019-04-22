@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const request = require('request-promise');
-const URL = process.env.API_URL || 'http://localhost:8080'
+
+const Player = require('../models/player')
 
 module.exports = (socket,next) => {
   try{
@@ -10,21 +11,15 @@ module.exports = (socket,next) => {
     const token = handshakeData._query['token']
     const decoded = jwt.verify(token, process.env.SECRET_KEY || 'dev');
 
-    request.get(URL + '/users/me', {
-      'auth': {
-        'bearer': token
-      },
-      'json':true
-    }).then((user) => {
-        // console.log(user);
-        socket.user = user;
+    let player = new Player(token);
+    player.getUser()
+      .then(() => {
+        socket.player = player;
         next();
-    }).catch((err) => {
-      console.log(err);
-      next(new Error(err));
-    });
+      });
 
   }catch(err){
+    console.log(socket.id + " is unauthorized");
     next(new Error('Authentication error'));
   }
 };
