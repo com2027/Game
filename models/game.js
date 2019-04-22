@@ -8,7 +8,7 @@ class Game{
   }
 
 
-  create(socket, players){
+  create(socket){
     let io = socket.server;
     if(Object.keys(socket.rooms).length <= 1){
       socket.join(this.id, () => {

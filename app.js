@@ -50,7 +50,10 @@ io.on('connection', function(socket){
   console.log(socket.player.user.firstName + ' ' + socket.player.user.lastName + ' connected');
 
   //when a user tries to create a game
-  socket.on('createGame', (players) => {
+  socket.on('createGame', (data) => {
+    let players = data.players;
+    let photo = data.photo;
+    console.log(photo);
     //try to make the game
     try{
       var game = new Game(players);
