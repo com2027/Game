@@ -4,25 +4,70 @@ class Game{
 
   constructor(players){
     this.id = uuid();
-    this.players = players
+    this.players = players;
   }
 
-
+  //create game method
   create(socket){
+    //get the io object
     let io = socket.server;
-    if(Object.keys(socket.rooms).length <= 1){
+    //if the user is not already in a game then
+    if(socket.player.game != undefined){
+      //add user to a game specific room
       socket.join(this.id, () => {
+        //add the creator to the list of players
+        this.players.push(socket.player);
+        //link the game object to the room
         io.sockets.adapter.rooms[this.id].game = this;
+        //log to the console that the game has been created
         console.log(socket.player.user.firstName + " " + socket.player.user.lastName + " has created game: " + this.id );
-        io.to(this.id).emit('gameCreated',{message: "Game has been created", id: this.id});
+        //emit to the game room that the game has been created
+        io.to(this.id).emit('gameCreated',{message: "[" + game.id + "]: Game has been created", id: this.id});
       });
     }else{
+      //if the user is in a game then throw an exception
       throw new Error(socket.player.user.firstName + " " + socket.player.user.lastName + " is already in a game: " + Object.keys(socket.rooms)[1]);
     }
   }
 
+  //leave game method
   leave(socket){
+    //remove the player from the game room
     socket.leave(this.id);
+    //inform the user they have left the game successfully.
+    socket.emit('gameLeft', {message:"Left game " + socket.player.game.id});
+    //delete the game key on the player object.
+    delete socket.player.game;
+  }
+
+  //join game static method
+  static join(socket, id, photo){
+    //get the io object
+    let io = socket.server;
+    //if the room is defined
+    if(io.sockets.adapter.rooms[id] != undefined){
+      //get the game object from the room
+      let game = io.sockets.adapter.rooms[id].game;
+      //set the user's photo and game in the player object
+      socket.player.photo = photo;
+      socket.player.game = game;
+      //if the invited players array contains the user's id who is trying to connect
+      if(game.players.includes(socket.player.user.id)){
+        //add player to the room
+        socket.join(this.id, () => {
+          //replace the id with the players full object
+          game.players.splice(game.players.indexOf(socket.player.user.id), 1, socket.player);
+          //emit to the room that the user has joined the game
+          io.to(game.id).emit('userJoined', {message: "[" + game.id + "]" + socket.player.user.firstName + " " socket.player.user.lastName + " has joined.", player: socket.player });
+        });
+      }else{
+        //if the player is not invited to the room then throw an error
+        socket.emit("err", { type: "gameNotInvited", message: "You haven't been invited to the game you're trying to connected to."});
+      }
+    }else{
+      //if the room is not defined then throw an error
+      socket.emit("err", { type: "gameNotFound", message: "The game you are trying to connect to is not found."});
+    }
   }
 }
 
