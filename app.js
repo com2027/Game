@@ -13,6 +13,10 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
+if(process.env.NODE_ENV == 'development'){
+  require('dotenv').config()
+}
+
 //include middleware
 const checkAuth = require('./middleware/check-auth');
 
@@ -51,15 +55,21 @@ io.on('connection', function(socket){
 
   //when a user tries to create a game
   socket.on('createGame', (data) => {
+    //get the data
     let players = data.players;
     let photo = data.photo;
-    console.log(photo);
     //try to make the game
     try{
-      var game = new Game(players);
+      //create new game object giving the players who are invited
+      let game = new Game(players);
+      //log to console attempting to make game
       console.log(socket.player.user.firstName + " " + socket.player.user.lastName + " is trying to create game: " + game.id )
-      game.create(socket, players);
-      socket.player.game = game;
+      //set the photo for the user
+      socket.player.photo = photo;
+      //create the game
+      game.create(socket);
+      //set the game for the user
+      // socket.player.game = game;
     }catch(err){
       //if the game cannot be created then log the error to the user and console
       socket.emit('gameNotCreated', {message: err.message});
@@ -67,12 +77,20 @@ io.on('connection', function(socket){
     }
   });
 
+  //when a user tries to leave a game
   socket.on('leaveGame', () => {
+    //leave the game
     socket.player.game.leave(socket);
-    socket.emit('gameLeft', {message:"Left game " + socket.player.game.id});
-    delete socket.player.game;
   });
 
+  //when a user tries to join a game
+  socket.on('joinGame', (data) => {
+    //get the data
+    let game_id = data.id;
+    let photo = data.photo;
+    //join the game
+    Game.join(socket, game_id, photo);
+  });
 
 
 

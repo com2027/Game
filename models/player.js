@@ -18,6 +18,17 @@ class Player{
     .catch(() => {throw {name:"UserNotFoundError", message:"User not found"}})
   }
 
+  getUserFromId(id){
+    return request.get(URL + '/users/' + id, {
+      'auth': {
+        'bearer': this.token
+      },
+      'json': true
+    })
+    .then((user) => { return user })
+    .catch((err) => { throw {name: "UserNotFoundError", message: "User not found"} })
+  }
+
 
 
 }
