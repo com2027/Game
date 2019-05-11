@@ -65,7 +65,7 @@ io.on('connection', function(socket){
       //create the game
       game.create(socket);
       //set the game for the user
-      socket.player.game = game;
+      // socket.player.game = game;
     }catch(err){
       //if the game cannot be created then log the error to the user and console
       socket.emit('gameNotCreated', {message: err.message});
