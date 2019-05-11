@@ -19,14 +19,14 @@ class Player{
   }
 
   getUserFromId(id){
-    request.get(URL + '/users/' +id, {
+    return request.get(URL + '/users/' + id, {
       'auth': {
         'bearer': this.token
       },
       'json': true
     })
-    .then((user) => {return user})
-    .catch((err) => { return err})
+    .then((user) => { return user })
+    .catch((err) => { throw {name: "UserNotFoundError", message: "User not found"} })
   }
 
 

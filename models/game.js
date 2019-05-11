@@ -1,4 +1,10 @@
 const uuid = require('uuid/v4');
+const PushNotifications = require('@pusher/push-notifications-server');
+
+const beamsClient = new PushNotifications({
+  instanceId: '8ad9b796-b0fe-4936-83bd-cde6d460f800',
+  secretKey: String(process.env.PUSHER_KEY)
+});
 
 const Player = require('./player');
 // testuser4: 2d817cfb-131f-400b-84ce-4f03b49c5bda
@@ -18,15 +24,25 @@ class Game{
     if( typeof Object.keys(socket.rooms)[1] !== undefined){
       //add user to a game specific room
       socket.join(this.id, () => {
-        //add the creator to the list of players
-        this.players.push(socket.player);
-        //variable to keep track of if users exist.
-        let playerCheck = true;
-        //check if the players exist.
-        this.players.forEach((player) => {
-            console.log(socket.player.getUserFromId(player));
-        });
 
+          for(let i = 0; i < this.players.length; i++){
+              //send push notification
+              beamsClient.publishToUsers(this.players, {
+                fcm: {
+                  notification: {
+                    title: 'Game Invitation',
+                    body: "You've been invited to game " + this.id
+                  }
+                }
+              }).then((publishResponse) => {
+                console.log('Sent notification to ' + this.players[i]);
+              }).catch((error) => {
+                console.error('Error:', error);
+              });
+          }
+
+          //add the creator to the list of players
+          this.players.push(socket.player);
           //link the game object to the room
           io.sockets.adapter.rooms[this.id].game = this;
           //log to the console that the game has been created
@@ -34,6 +50,7 @@ class Game{
 
           //emit to the game room that the game has been created
           io.to(this.id).emit('gameCreated',{message: "[" + this.id + "]: Game has been created", game:Game.cleanGame(this)});
+
       });
     }else{
       //if the user is in a game then throw an exception
@@ -70,7 +87,6 @@ class Game{
           game.players.splice(game.players.indexOf(socket.player.user.id), 1, socket.player);
           //emit to the room that the user has joined the game
           io.to(game.id).emit('userJoined', {message: "[" + game.id + "]: " + socket.player.user.firstName + " " + socket.player.user.lastName + " has joined.", game: Game.cleanGame(game) });
-          console.log("Here");
         });
       }else{
         //if the player is not invited to the room then throw an error
@@ -87,7 +103,6 @@ class Game{
     let gameCopy = game;
     gameCopy.players.forEach((p) => {
       delete p.token;
-      console.log(p.user);
       if (p.hasOwnProperty("user")){
         delete p.user.password;
         delete p.user.active;

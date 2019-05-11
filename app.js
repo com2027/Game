@@ -13,6 +13,10 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
+if(process.env.NODE_ENV == 'development'){
+  require('dotenv').config()
+}
+
 //include middleware
 const checkAuth = require('./middleware/check-auth');
 
